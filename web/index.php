@@ -43,12 +43,13 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
  */
 function highlight($text, $search) 
 {
-    $array  = explode(' ', $search);
-    
-    foreach ($array as $value) {
-        $text   =   preg_replace('/(' . $value . ')/i', '<span style="background-color:yellow">\1</span>', $text);
+    if ($search !== '') {
+        $array  = explode(' ', $search);
+
+        foreach ($array as $value) {
+            $text   =   preg_replace('/(' . $value . ')/i', '<span style="background-color:yellow">\1</span>', $text);
+        }
     }
-    
     return $text;
 }
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
