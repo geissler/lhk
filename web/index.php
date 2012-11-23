@@ -15,7 +15,7 @@ $app['security.firewalls'] = array(
         'http' => true,
         'users' => array(
             // raw password is foo
-            'geissler' => array('ROLE_ADMIN', $_SERVER["APP_IMPORT"]),
+            'geissler' => array('ROLE_ADMIN', $_SERVER['APP_IMPORT']),
         ),
     ),
 );
@@ -26,7 +26,7 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => array(
         'driver'    =>  'pdo_mysql',
         'host'      =>  $_SERVER['DB1_HOST'],
-        'port'      =>  $_SERVER["DB1_PORT"],
+        'port'      =>  $_SERVER['DB1_PORT'],
         'dbname'    =>  $_SERVER['DB1_NAME'],
         'user'      =>  $_SERVER['DB1_USER'],
         'password'  =>  $_SERVER['DB1_PASS'],
@@ -85,19 +85,20 @@ $app->post('/search', function (Request $request, Silex\Application $app) {
         $parameter  = array_fill(0, count($search), '?');
         $sqlQuotes  =   'SELECT title, quote, page, keywords, signatur
                             FROM title
-                            JOIN quotes ON title.id = quotes.titleid
-                            JOIN keywords ON title.id = keywords.id
-                            JOIN signatur ON title.id = signatur.titleid
+                            LEFT JOIN quotes ON title.id = quotes.titleid
+                            LEFT JOIN keywords ON title.id = keywords.id
+                            LEFT JOIN signatur ON title.id = signatur.titleid
                             WHERE 
                                 quotes.quote LIKE ' . implode(' AND quotes.quote LIKE', $parameter);
         
         $sqlTitle   =   'SELECT title, keywords, signatur
                             FROM title
-                            JOIN keywords ON title.id = keywords.id
-                            JOIN signatur ON title.id = signatur.titleid
+                            LEFT JOIN keywords ON title.id = keywords.id
+                            LEFT JOIN signatur ON title.id = signatur.titleid
                             WHERE                             
                                 (keywords.keywords LIKE ' . implode(' AND keywords.keywords LIKE', $parameter) .')
-                                OR (title.title LIKE ' . implode(' AND title.title LIKE', $parameter) .')';
+                                OR (title.title LIKE ' . implode(' AND title.title LIKE', $parameter) .')
+                                OR (title.type LIKE ' . implode(' AND title.type LIKE', $parameter) .')';
 
         for($i = 0; $i < count($search); $i++) {
             $search[$i] =   '%' . $search[$i] . '%';
@@ -105,23 +106,18 @@ $app->post('/search', function (Request $request, Silex\Application $app) {
         
         $result = array_merge(
                         $app['db']->fetchAll($sqlQuotes, $search),
-                        $app['db']->fetchAll($sqlTitle, array_merge($search, $search)));
+                        $app['db']->fetchAll($sqlTitle, array_merge($search, $search, $search)));
     }
     
     return $app['twig']->render('index.html.twig', array(
         'result' => $result,
+        'hits'  => count($result),
         'search' => $request->get('search')
     ));    
 });
 
-// Import
-$app->get('/import', function (Silex\Application $app) {
-    require_once __DIR__ . '/../app/BibTex.php';
-    
-    $titles =   explode('<br>', file_get_contents(__DIR__ . '/../files/title.txt'));
-    $bibTex =   new BibTex();    
-    $bib    =   $bibTex->read(utf8_encode(file_get_contents(__DIR__ . '/../files/quotes.txt')));
-    
+// Import Tabelle löschen
+$app->get('/import/clear', function (Silex\Application $app) {       
     $sqls   =   array(
         'DROP TABLE IF EXISTS title',
         'DROP TABLE IF EXISTS  quotes',
@@ -130,49 +126,78 @@ $app->get('/import', function (Silex\Application $app) {
         'CREATE TABLE `keywords` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`keywords` text COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
         'CREATE TABLE `quotes` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`header` varchar(300) COLLATE utf8_unicode_ci NOT NULL,`quote` text COLLATE utf8_unicode_ci NOT NULL,`page` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
         'CREATE TABLE `signatur` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`signatur` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
-        'CREATE TABLE `title` (`id` int(11) NOT NULL,`title` varchar(500) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
-    
+        'CREATE TABLE `title` (`id` int(11) NOT NULL,`title` varchar(500) COLLATE utf8_unicode_ci NOT NULL, `type` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
+        
     foreach($sqls as $sql) {
         $app['db']->executeQuery($sql);   
-    }   
+    }       
     
+    return $app['twig']->render('index.html.twig', array(
+        'message' => 'Tabelle gelöscht und neu erstellt',
+    ));
+});
+
+// Daten importieren
+$app->get('/import/{name}', function (Silex\Application $app, $name) {
+    require_once __DIR__ . '/../app/BibTex.php';
+            
+    $imports    =   array(
+        'eisen'     =>  'Eisen',
+        'lhk'       =>  'Italische Heiligtümer in der Kaiserzeit',
+        'tonart'    =>  'Tonart',
+        'forum'     =>  'Forum Romanum',
+        'kolonien'  =>  'Latinische Kolonien',
+        'medizin'   =>  'Arzthäuser in Pompeij',
+        'gips'      =>  'Museum Bonn');
     
-    $length =   count($titles);
-    for($i = 0; $i < $length; $i++) {
-        $app['db']->insert('title', array('id' => $i, 'title' => $titles[$i]));
-    }
-    
-    for($i = 0; $i < $length; $i++) {
-        $numberOfQuotes =   count($bib[$i]['note']);
-        if ($numberOfQuotes > 0) {
-            for($j = 0; $j < $numberOfQuotes; $j++) {
-                if (preg_match('/([0-9]+\-)?([0-9]+)(f| f|f\.| f\.| f \.)?$/', $bib[$i]['note'][$j], $pages) == 1) {                        
-                    // save page                             
-                    $page  =   $pages[0];
-                    if (strpos($pages[0], 'f') !== false) {
-                        $page  =   trim(str_replace(array('f', '.'), array('', ''), $pages[0]));                            
+    if (array_key_exists($name, $imports) == true) {
+        $id         =   $app['db']->fetchAssoc('SELECT MAX( id ) AS Max FROM  `title`');        
+        $titleid    =   $id['Max'];
+        $type       =   $imports[$name];        
+        $titles     =   explode('<br>', utf8_encode(file_get_contents(__DIR__ . '/../files/' . $name . '.title.txt')));
+        $bibTex     =   new BibTex();    
+        $bib        =   $bibTex->read(utf8_encode(file_get_contents(__DIR__ . '/../files/' . $name . '.quotes.txt')));
+            
+        $length =   count($titles);
+        for($i = 0; $i < $length; $i++) {
+            // title
+            $titleid++;            
+            $app['db']->insert('title', array('id' => $titleid, 'title' => $titles[$i], 'type' => $type));
+        
+            // quotes
+            if (isset($bib[$i]['note']) == true) {
+                $numberOfQuotes =   count($bib[$i]['note']);
+                if ($numberOfQuotes > 0) {
+                    for($j = 0; $j < $numberOfQuotes; $j++) {
+                        if (preg_match('/([0-9]+\-)?([0-9]+)(f| f|f\.| f\.| f \.)?$/', $bib[$i]['note'][$j], $pages) == 1) {                        
+                            // save page                             
+                            $page  =   $pages[0];
+                            if (strpos($pages[0], 'f') !== false) {
+                                $page  =   trim(str_replace(array('f', '.'), array('', ''), $pages[0]));                            
+                            }
+                            $page   = preg_replace('/^0/', '', $page);
+
+                            // save quote
+                            $quote =   trim(str_replace('``', '"', str_replace($pages[0], '', $bib[$i]['note'][$j])));
+                            $app['db']->insert('quotes', array('titleid' => $titleid,  'quote' => $quote, 'page'  =>  $page));                                                                 
+                        }
                     }
-                    $page   = preg_replace('/^0/', '', $page);
-                    
-                    // save quote
-                    $quote =   trim(str_replace('``', '"', str_replace($pages[0], '', $bib[$i]['note'][$j])));
-                    $app['db']->insert('quotes', array('titleid' => $i,  'quote' => $quote, 'page'  =>  $page));                                                                 
-                }
+                }        
             }
-        }        
-        
-        // keywords
-        if (isset($bib[$i]['keywords']) == true
-            && $bib[$i]['keywords'] !== '') {
-                $app['db']->insert('keywords', array('titleid' => $i,  'keywords' => $bib[$i]['keywords'])); 
-        }
-        
-        // Signatur
-        if (isset($bib[$i]['LCCN']) == true
-            && $bib[$i]['LCCN'] !== '') {
-                $app['db']->insert('signatur', array('titleid' => $i,  'signatur' => $bib[$i]['LCCN'])); 
-        }
-    }    
+
+            // keywords
+            if (isset($bib[$i]['keywords']) == true
+                && $bib[$i]['keywords'] !== '') {
+                    $app['db']->insert('keywords', array('titleid' => $titleid,  'keywords' => $bib[$i]['keywords'])); 
+            }
+
+            // Signatur
+            if (isset($bib[$i]['LCCN']) == true
+                && $bib[$i]['LCCN'] !== '') {
+                    $app['db']->insert('signatur', array('titleid' => $titleid,  'signatur' => $bib[$i]['LCCN'])); 
+            }            
+        }    
+    }
     
     return $app['twig']->render('index.html.twig', array(
         'message' => 'Daten erfolgreich importiert!',
@@ -181,14 +206,16 @@ $app->get('/import', function (Silex\Application $app) {
 
 // list
 $app->get('/list', function (Silex\Application $app) {    
-    $sql   =   'SELECT title, keywords, signatur
-                        FROM title
-                        JOIN keywords ON title.id = keywords.id
-                        JOIN signatur ON title.id = signatur.titleid';
+    $sql   =   'SELECT title, keywords, signatur, type
+                    FROM title
+                    LEFT JOIN keywords ON title.id = keywords.id
+                    LEFT JOIN signatur ON title.id = signatur.titleid
+                    ORDER BY title.type';
 
     return $app['twig']->render('index.html.twig', array(
         'result' => $app['db']->fetchAll($sql),
-        'search' => ''
+        'search' => '',
+        'list'  =>  true
     ));   
 });
 
