@@ -2,10 +2,8 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+// Silex
 $app = new Silex\Application();
-
-
-$app['debug'] = true;
 
 // Security
 $app['security.firewalls'] = array();
@@ -16,7 +14,7 @@ $app['security.firewalls'] = array(
         'http' => true,
         'users' => array(
             // raw password is foo
-            'geissler' => array('ROLE_ADMIN', '6Tf4ahHZewtYEnSnSamY0LieG1Bc/NjADIdM0ksQe+q+PkdC8ci2rf8NCQM3suonse+/krYvWTzmUthH/V/RlA=='),
+            'geissler' => array('ROLE_ADMIN', $_SERVER["APP_IMPORT"]),
         ),
     ),
 );
@@ -25,10 +23,11 @@ $app->boot();
 // Database
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => array(
-        'driver'    => 'pdo_mysql',
-        'dbname'    => 'literatur',
-        'user'      => 'literatur',
-        'password'  => '6nZeysrAH24sbcGt',
+        'driver'    =>  'pdo_mysql',
+        'host'      =>  $_SERVER['DB_HOST'],
+        'dbname'    =>  $_SERVER['DB_NAME'],
+        'user'      =>  $_SERVER['DB_USER'],
+        'password'  =>  $_SERVER['DB_PASSWORD'],
     ),
 ));
 
@@ -57,8 +56,6 @@ $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
     $twig->addFilter('highlight', new Twig_Filter_Function('highlight'));
     return $twig;
 }));
-
-
 
 // Start 
 $app->get('', function () use ($app) {
