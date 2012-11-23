@@ -153,8 +153,8 @@ $app->get('/import/{name}', function (Silex\Application $app, $name) {
     if (array_key_exists($name, $imports) == true) {
         $id         =   $app['db']->fetchAssoc('SELECT MAX( id ) AS Max FROM  `title`');        
         $titleid    =   $id['Max'];
-        $type       =   $imports[$name];        
-        $titles     =   explode('<br>', (file_get_contents(__DIR__ . '/../files/' . $name . '.title.txt')));
+        $type       =   $imports[$name];         
+        $titles     =   explode('<br>', utf8_encode(file_get_contents(__DIR__ . '/../files/' . $name . '.title.txt')));
         $bibTex     =   new BibTex();    
         $bib        =   $bibTex->read(utf8_encode(file_get_contents(__DIR__ . '/../files/' . $name . '.quotes.txt')));
             
