@@ -99,18 +99,17 @@ $app->post('/search', function (Request $request, Silex\Application $app) {
         for($i = 0; $i < count($search); $i++) {
             $search[$i] =   '%' . $search[$i] . '%';
         }
-        //var_dump($sql);
+        
         $result = array_merge(
                         $app['db']->fetchAll($sqlQuotes, $search),
                         $app['db']->fetchAll($sqlTitle, array_merge($search, $search)));
     }
-    //var_dump($result);
+    
     return $app['twig']->render('index.html.twig', array(
         'result' => $result,
         'search' => $request->get('search')
     ));    
 });
-
 
 // Import
 $app->get('/import', function (Silex\Application $app) {
@@ -172,6 +171,19 @@ $app->get('/import', function (Silex\Application $app) {
     return $app['twig']->render('index.html.twig', array(
         'message' => 'Daten erfolgreich importiert!',
     ));
+});
+
+// list
+$app->get('/list', function (Silex\Application $app) {    
+    $sql   =   'SELECT title, keywords, signatur
+                        FROM title
+                        JOIN keywords ON title.id = keywords.id
+                        JOIN signatur ON title.id = signatur.titleid';
+
+    return $app['twig']->render('index.html.twig', array(
+        'result' => $app['db']->fetchAll($sql),
+        'search' => ''
+    ));   
 });
 
 // Silex ausführen

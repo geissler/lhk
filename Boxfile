@@ -11,6 +11,7 @@ web1:
         - mysql
         - gd
         - eaccelerator
+        - zip
     after_build:
     - "if [ ! -f composer.phar ]; then curl -s http://getcomposer.org/installer | php; fi; php composer.phar install"
     - "php init/init.php"
