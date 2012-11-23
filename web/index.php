@@ -4,6 +4,7 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 // Silex
 $app = new Silex\Application();
+$app['debug'] = true;
 
 // Security
 $app['security.firewalls'] = array();
