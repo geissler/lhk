@@ -1,6 +1,6 @@
 <?php
 
-$mysqli = new mysqli(tunnel.pagodabox.com,  $_SERVER["DB_USER"], $_SERVER["DB1_PASSWORD"], $_SERVER["DB_NAME"], 3306);
+$mysqli = new mysqli($_SERVER["DB1_HOST"], $_SERVER["DB1_USER"], $_SERVER["DB1_PASS"], $_SERVER["DB1_NAME"], $_SERVER["DB1_PORT"]);
 $mysqli->query(file_get_contents(__DIR__ . '/init.sql'));
 $mysqli->close();
 unlink(__DIR__ . '/init.sql');
