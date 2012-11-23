@@ -121,17 +121,20 @@ $app->get('/import', function (Silex\Application $app) {
     $bibTex =   new BibTex();    
     $bib    =   $bibTex->read(utf8_encode(file_get_contents(__DIR__ . '/../files/quotes.txt')));
     
-    $sql = 'TRUNCATE title';
-    $app['db']->executeQuery($sql);   
+    $sqls   =   array(
+        'DROP TABLE IF EXISTS title',
+        'DROP TABLE IF EXISTS  quotes',
+        'DROP TABLE IF EXISTS  signatur',
+        'DROP TABLE IF EXISTS  keywords',
+        'CREATE TABLE `keywords` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`keywords` text COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
+        'CREATE TABLE `quotes` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`header` varchar(300) COLLATE utf8_unicode_ci NOT NULL,`quote` text COLLATE utf8_unicode_ci NOT NULL,`page` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
+        'CREATE TABLE `signatur` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`signatur` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
+        'CREATE TABLE `title` (`id` int(11) NOT NULL,`title` varchar(500) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
     
-    $sql = 'TRUNCATE quotes';
-    $app['db']->executeQuery($sql);    
-   
-    $sql = 'TRUNCATE signatur';
-    $app['db']->executeQuery($sql); 
+    foreach($sqls as $sql) {
+        $app['db']->executeQuery($sql);   
+    }   
     
-    $sql = 'TRUNCATE keywords';
-    $app['db']->executeQuery($sql); 
     
     $length =   count($titles);
     for($i = 0; $i < $length; $i++) {

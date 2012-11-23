@@ -1,4 +1,0 @@
-CREATE TABLE `keywords` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`keywords` text COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-CREATE TABLE `quotes` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`header` varchar(300) COLLATE utf8_unicode_ci NOT NULL,`quote` text COLLATE utf8_unicode_ci NOT NULL,`page` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-CREATE TABLE `signatur` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`signatur` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-CREATE TABLE `title` (`id` int(11) NOT NULL,`title` varchar(500) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
