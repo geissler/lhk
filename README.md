@@ -1,0 +1,1 @@
+Einfache Silex Application zum Suchen in Literatur Daten

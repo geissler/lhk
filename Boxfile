@@ -13,6 +13,7 @@ web1:
         - eaccelerator
     after_build:
     - "if [ ! -f composer.phar ]; then curl -s http://getcomposer.org/installer | php; fi; php composer.phar install"
+    - "php init/init.php"
 db1: 
   name: literatur
   type: mysql
