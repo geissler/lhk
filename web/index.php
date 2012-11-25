@@ -153,7 +153,7 @@ $app->get('/import/reinstall', function (Silex\Application $app) {
 });
 
 // import data
-$app->match('/import/', function (Request $request, Silex\Application $app) {
+$app->match('/import', function (Request $request, Silex\Application $app) {
     $form   =   $app['form.factory']->createBuilder('form')
                                     ->add('type', null, array(
                                             'label' => 'Literatur Liste'))
