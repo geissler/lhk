@@ -6,12 +6,22 @@
 class Database
 {
     private $db;
-    
+   
+    /**
+     * Inject the database connection
+     * @param Doctrine\DBAL\Connection $db
+     */
     public function __construct(Doctrine\DBAL\Connection $db)
     {
         $this->db   =   $db;
     }
     
+    /**
+     * remove all entrys with the given title type
+     * 
+     * @param string $type
+     * @return void
+     */
     public function clear($type)
     {
         $result     =   $this->db->fetchAll('SELECT id FROM title WHERE type = ?', array($type));
@@ -31,6 +41,11 @@ class Database
         }
     }
     
+    /**
+     * remove and reinstall all mysql tables
+     * 
+     * @return void
+     */
     public function reinstall()
     {
         $sqls   =   array(
@@ -38,10 +53,10 @@ class Database
         'DROP TABLE IF EXISTS  quotes',
         'DROP TABLE IF EXISTS  signatur',
         'DROP TABLE IF EXISTS  keywords',
-        'CREATE TABLE `keywords` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`keywords` text COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
-        'CREATE TABLE `quotes` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`header` varchar(300) COLLATE utf8_unicode_ci NOT NULL,`quote` text COLLATE utf8_unicode_ci NOT NULL,`page` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
-        'CREATE TABLE `signatur` (`id` int(11) NOT NULL AUTO_INCREMENT,`titleid` int(11) NOT NULL,`signatur` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
-        'CREATE TABLE `title` (`id` int(11) NOT NULL,`title` varchar(500) COLLATE utf8_unicode_ci NOT NULL, `type` varchar(100) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
+        'CREATE TABLE `keywords` (`id` int(11) NOT NULL AUTO_INCREMENT, `titleid` int(11) NOT NULL, `keywords` varchar(200) COLLATE utf8_unicode_ci NOT NULL,PRIMARY KEY (`id`),KEY `keywords` (`keywords`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;',
+        'CREATE TABLE `quotes` (`id` int(11) NOT NULL AUTO_INCREMENT,  `titleid` int(11) NOT NULL,  `header` varchar(300) COLLATE utf8_unicode_ci NOT NULL,  `quote` text COLLATE utf8_unicode_ci NOT NULL,  `page` varchar(100) COLLATE utf8_unicode_ci NOT NULL,  PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
+        'CREATE TABLE `signatur` (`id` int(11) NOT NULL AUTO_INCREMENT, `titleid` int(11) NOT NULL, `signatur` varchar(100) COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
+        'CREATE TABLE `title` (`id` int(11) NOT NULL, `title` varchar(500) COLLATE utf8_unicode_ci NOT NULL, `type` varchar(100) COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (`id`), KEY `title` (`title`(255)), KEY `type` (`type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
         
         foreach($sqls as $sql) {
             $this->db->executeQuery($sql);   
