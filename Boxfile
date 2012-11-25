@@ -4,6 +4,7 @@ web1:
     default_gateway: index.php
     index_list: [index.php]
     php_version: 5.3.8
+    php_upload_max_filesize: "5M"
     shared_writable_dirs:
         - var/cache
         - var/sessions
