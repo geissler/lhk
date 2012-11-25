@@ -1,7 +1,7 @@
 {% extends "index.html.twig" %}
 
 {% block container %}
-    <form class="form-horizontal" action="{{ app.request.baseUrl }}/import/upload" method="post" enctype="multipart/form-data">
+    <form class="form-horizontal" action="{{ app.request.baseUrl }}/import" method="post" enctype="multipart/form-data">
         {{ form_widget(form) }}
 
         <input type="submit" name="Upload" class="btn" value="Upload"/>
