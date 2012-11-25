@@ -139,7 +139,7 @@ $app->get('/quotes/{id}', function (Silex\Application $app, $id) {
 
 // reinstall all tables
 $app->get('/import/reinstall', function (Silex\Application $app) {     
-    require_once '/../classes/Database.php';
+    require_once __DIR__ . '/../classes/Database.php';
     
     $db = new Database($app['db']);
     $db->reinstall();
@@ -161,7 +161,7 @@ $app->match('/import/upload', function (Request $request, Silex\Application $app
         $form->bind($request);
 
         if ($form->isValid()) {
-            require_once '/../classes/Database.php';
+            require_once __DIR__ . '/../classes/Database.php';
             require_once __DIR__ . '/../classes/BibTex.php';
             $uploadDir  =   __DIR__ . '/../files';
             $data       =   $form->getData();
@@ -255,7 +255,7 @@ $app->match('/import/upload', function (Request $request, Silex\Application $app
 
 // remove literatur list
 $app->get('/import/remove/{name}', function (Silex\Application $app, $name) {
-    require_once '/../classes/Database.php';
+    require_once __DIR__ . '/../classes/Database.php';
     
     $db = new Database($app['db']);
     $db->clear($name);
