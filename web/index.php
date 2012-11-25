@@ -57,6 +57,7 @@ function highlight($text, $search)
         $array  = explode(' ', $search);
 
         foreach ($array as $value) {
+            $value  =   str_replace('?', '.', $value);            
             $text   =   preg_replace('/(' . $value . ')/i', '<span style="background-color:yellow">\1</span>', $text);
         }
     }
@@ -85,11 +86,13 @@ $app->get('/help', function () use ($app) {
 // Search
 use Symfony\Component\HttpFoundation\Request;
 $app->get('/search', function (Request $request, Silex\Application $app) {
-    $search = explode(' ', $request->get('search'));
-    $result = array();
+    $search     =   str_replace('?', '_', $request->get('search'));
+    $search     =   str_replace('*', '%', $search);
+    $searchFor  =   explode(' ', $search);
+    $result     =   array();
     
-    if (count($search) > 0) {
-        $parameter  = array_fill(0, count($search), '?');
+    if (count($searchFor) > 0) {
+        $parameter  = array_fill(0, count($searchFor), '?');
         $sqlQuotes  =   'SELECT title, quote, page, keywords, signatur
                             FROM title
                             LEFT JOIN quotes ON title.id = quotes.titleid
@@ -107,19 +110,19 @@ $app->get('/search', function (Request $request, Silex\Application $app) {
                                 OR (title.title LIKE ' . implode(' AND title.title LIKE', $parameter) .')
                                 OR (title.type LIKE ' . implode(' AND title.type LIKE', $parameter) .')';
 
-        for($i = 0; $i < count($search); $i++) {
-            $search[$i] =   '%' . $search[$i] . '%';
+        for($i = 0; $i < count($searchFor); $i++) {
+            $searchFor[$i] =   '%' . $searchFor[$i] . '%';
         }
        
         $result = array_merge(
-                        $app['db']->fetchAll($sqlQuotes, $search),
-                        $app['db']->fetchAll($sqlTitle, array_merge($search, $search, $search)));
+                        $app['db']->fetchAll($sqlQuotes, $searchFor),
+                        $app['db']->fetchAll($sqlTitle, array_merge($searchFor, $searchFor, $searchFor)));
     }
     
     return $app['twig']->render('search.html.twig', array(
-        'result' => $result,
-        'hits'  => count($result),
-        'search' => $request->get('search')
+        'result'    =>  $result,
+        'hits'      =>  count($result),
+        'search'    =>  $request->get('search')
     ));    
 });
 
@@ -150,7 +153,7 @@ $app->get('/import/reinstall', function (Silex\Application $app) {
 });
 
 // import data
-$app->match('/import', function (Request $request, Silex\Application $app) {
+$app->match('/import/', function (Request $request, Silex\Application $app) {
     $form   =   $app['form.factory']->createBuilder('form')
                                     ->add('type', null, array(
                                             'label' => 'Literatur Liste'))
