@@ -1,5 +1,7 @@
+## About
 Simple Silex based application to search in literature references imported from BibTex files hosted on pagodabox.
 
+## Installation
 ### Pagadobox Environment Variables 
 If your are not using pagodabox you have to set these variables
 - DB1_HOST  mysql host (standard localhost)
@@ -15,6 +17,6 @@ These variables have to been set
 - APP_PASSWORD encrypted password
 
 ## Usage
-/import/reinstall   initialize the database
-/import    install a new reference list
-/import/remove/{name}   remove all data from the reference list (= {name})
+- /import/reinstall   initialize the database
+- /import    install a new reference list
+- /import/remove/{name}   remove all data from the reference list (= {name})
