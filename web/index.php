@@ -15,7 +15,7 @@ $app['security.firewalls'] = array(
         'http' => true,
         'users' => array(
             // raw password is foo
-            'geissler' => array('ROLE_ADMIN', $_SERVER['APP_IMPORT']),
+            $_SERVER['APP_USER'] => array('ROLE_ADMIN', $_SERVER['APP_PASSWORD']),
         ),
     ),
 );
@@ -152,9 +152,15 @@ $app->get('/import/reinstall', function (Silex\Application $app) {
 // import data
 $app->match('/import/upload', function (Request $request, Silex\Application $app) {
     $form   =   $app['form.factory']->createBuilder('form')
-                                    ->add('type')
-                                    ->add('titles', 'file')
-                                    ->add('quotes', 'file')        
+                                    ->add('type', null, array(
+                                            'label' => 'Literatur Liste'))
+                                    ->add('titles', 'file', array(
+                                            'label' => 'Datei mit den Literaturnachweisen'))
+                                    ->add('quotes', 'file', array(
+                                            'label' => 'Datei mit den BibTex Angaben'))      
+                                    ->add('encode', 'checkbox', array(
+                                            'label' => 'Encodierung nicht überprüfen',
+                                            'required' => false))
                                     ->getForm();
     
     if ('POST' == $request->getMethod()) {        
@@ -181,12 +187,14 @@ $app->match('/import/upload', function (Request $request, Silex\Application $app
             
             // load titles
             $loadTitles = file_get_contents($uploadDir . '/titles.txt');
-            if (mb_detect_encoding($loadTitles) !== 'UTF-8') {
-                $loadTitles =   mb_convert_encoding($loadTitles, 'utf-8');
-            }
-            else {
-                $loadTitles    = utf8_encode($loadTitles);
-            }            
+            if ($data['encode'] == false) {
+                if (mb_detect_encoding($loadTitles) !== 'UTF-8') {
+                    $loadTitles =   mb_convert_encoding($loadTitles, 'utf-8');
+                }
+                else {
+                    $loadTitles    = utf8_encode($loadTitles);
+                }    
+            }                        
             $titles     =   explode('<br>', $loadTitles);   
             
             // load quotes             
