@@ -1,0 +1,30 @@
+{% extends "index.html.twig" %}
+
+{% block container %}
+    <div class="alert alert-success">
+        Es wurden {{ hits }} Einträge gefunden
+    </div>  
+
+    {% set title = '' %}
+    {% for entry in result %}        
+        {% if title != entry.title %}
+            <h4>{{ entry.title|highlight(search)|raw }}</h4>
+            <h5>
+                {% if entry.keywords != null %}
+                    {{ entry.keywords|highlight(search)|raw }}
+                {% endif %}
+
+                {% if entry.signatur != null %}
+                    <span class="badge">{{ entry.signatur }}</span>
+                {% endif %}
+            </h5>
+            {% set title = entry.title %}
+        {% endif %}
+        {% if entry.quote is defined %}    
+            <blockquote>
+                <p>{{ entry.quote|highlight(search)|raw }}</p>
+                <small>Seite {{ entry.page }}</small>
+            </blockquote>
+       {% endif %}
+    {% endfor %}
+{% endblock %}

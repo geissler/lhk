@@ -1,9 +1,25 @@
 {
-    "name": "literatur", 
+    "name": "geissler/lhk",     
+    "description": "Small silex based bibtex data browser",
+    "keywords": [],
+    "homepage": "http://http://lhk.pagodabox.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benjamin Geißler",
+            "email": "benjamin.geissler@gmail.com"
+        }
+    ],            
     "require": {
         "silex/silex": "1.0.x-dev",
         "doctrine/dbal": "2.2.*",
         "twig/twig": ">=1.8,<2.0-dev",
-        "symfony/security": "2.1.*"
+        "symfony/security": "2.1.*",
+        "symfony/form": "2.1.*",
+        "symfony/validator": "2.1.*",
+        "symfony/config": "2.1.*",
+        "symfony/translation": "2.1.*",
+        "symfony/locale": "2.1.*",
+        "symfony/twig-bridge" : "2.1.*"
     }
 }

@@ -18,7 +18,8 @@
             }
         </style>
         <link rel="stylesheet" href="{{ app.request.baseUrl }}/css/bootstrap-responsive.min.css">
-        <link rel="stylesheet" href="{{ app.request.baseUrl }}/css/main.css">
+        {% block css %}
+        {% endblock %}
 
         <script src="{{ app.request.baseUrl }}/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
@@ -26,8 +27,6 @@
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
-
-        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
 
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
@@ -40,12 +39,13 @@
                     <a class="brand" href="#">LHK Literatur</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <form class="navbar-search pull-left" action="search" method="POST">
+                            <form class="navbar-search pull-left" action="search" method="GET">
                                 <input id="search" name="search" type="text" class="search-query" placeholder="Suchen..">
                             </form>                           
                         </ul>
-                        <ul class="nav pull-right">
+                        <ul class="nav pull-right">                            
                             <li><a href="/list">Literatur Liste</a></li>
+                            <li><a href="/tags">Stichwörter</a></li>
                             <li><a href="/help">Hilfe</a></li>
                         </ul>
                     </div><!--/.nav-collapse -->
@@ -54,78 +54,14 @@
         </div>
 
         <div class="container">    
-            {% if hits is defined %}
-                <div class="alert alert-success">
-                    Es wurden {{ hits }} Einträge gefunden
-                </div>                
-            {% endif %}
-            {% if result is defined %}
-                {% set title = '' %}
-                {% set listTitel = '' %}
-                {% for entry in result %}
-                    {% if list is defined %}
-                        {% if listTitel != entry.type %}
-                            <h2>{{ entry.type }}</h2>
-                            {% set listTitel = entry.type %}
-                        {% endif %}
-                    {% endif %}
-                    {% if title != entry.title %}
-                        <h4>{{ entry.title|highlight(search)|raw }}</h4>
-                        <h5>
-                            {% if entry.keywords != null %}
-                                {{ entry.keywords|highlight(search)|raw }}
-                            {% endif %}
-                                
-                            {% if entry.signatur != null %}
-                                <span class="badge">{{ entry.signatur }}</span>
-                            {% endif %}
-                        </h5>
-                        {% set title = entry.title %}
-                    {% endif %}
-                    {% if entry.quote is defined %}    
-                        <blockquote>
-                            <p>{{ entry.quote|highlight(search)|raw }}</p>
-                            <small>Seite {{ entry.page }}</small>
-                        </blockquote>
-                   {% endif %}
-                {% endfor %}
-            {% endif %}
-            
-            {% if message is defined %}
-                <div class="well well-large">
-                    {{ message }}
-                </div>
-            {% endif %}
-            
-            {% if about is defined %}
-                <div class="well well-large">
-                    Folgendes ist zu den Daten und der Suche zu sagen:
-                    <ul>
-                        <li>Tippfehler sind zahlreich</li>
-                        <li>Die erstern Wörter eines Zitates gehören nicht zu dem Zitat. Da BibTex keine "Überschriften" kenn kann man sie leider nicht ausfilter</li>
-                        <li>Merkwürdige Aussagen am Ende eines Zitates sind meist meine eigenen wirren Gedanken dazu.</li>
-                        <li>Die Wörter unter dem Titel sind Stichwörter die ich vergeben habe</li>
-                        <li>Rom findet sowohl Rom als auch Aroma</li>
-                        <li>[...] sind Auslassungen</li>
-                        <li>Die Zitate sind in folgenden Sprachen: Deutsch, Englisch, Italienisch, Französisch, Spanisch, Polnisch (??)</li>
-                        <li>Einzelne Literatur Einträge können durch aus doppelt sein</li>
-                        <li>Die Angaben folgen den DAI Richtlinien, sind aber nicht immer vollständig oder richtig</li>
-                    </ul>
-                </div>
-            {% endif %}                        
-                        
+            {% block container %}
+                                    
+            {% endblock %}            
             <footer>
                 <hr>
-                <p>&copy; Benjamin Geißler 2012</p>
+                <div class="pull-left">&copy; Benjamin Geißler 2012</div>
+                <div class="pull-right">based on <a href="http://silex.sensiolabs.org/" target="_blank">Silex</a>, <a href="http://twitter.github.com/bootstrap/" target="_blank">Bootstrap</a> and <a href="http://hub.lotsofcode.com/tag-cloud/" target="_blank">tag cloud</a>. Source code on <a href="https://github.com/geissler/lhk" target="_blank">github</a></div>
             </footer>
-
         </div> <!-- /container -->
-
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="{{ app.request.baseUrl }}/js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
-
-        <script src="{{ app.request.baseUrl }}/js/vendor/bootstrap.min.js"></script>
-
-        <script src="{{ app.request.baseUrl }}/js/main.js"></script>
     </body>
 </html>

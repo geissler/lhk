@@ -1,0 +1,64 @@
+{% extends "index.html.twig" %}
+
+{% block container %}
+    <h3>Links zu den verschiedenen Themen-Gruppen:</h3>
+    <ul>
+        {% for type in types %}
+            <li><a href="#{{ type.type }}">{{ type.type }}</a></lis>
+        {% endfor %}
+    </ul>    
+
+    {% set list = '' %}
+    {% set close = false %}
+
+    {% for entry in result %}
+        {% if entry.type != list %}
+            
+    
+            {% if close == true %}
+                </table>
+            {% endif %}
+            
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h2><a id="{{ entry.type }}">{{ entry.type }}</a></h2>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Literatur</th>
+                        <th>Stichwörter</th>
+                        <th>Signatur</th>
+                        <th>Zitate</th>
+                    </tr>
+                </thead>
+            {% set close = true %}
+            {% set list = entry.type %}
+        {% endif %}
+
+        {% if entry.title != '' %}
+            <tr>
+                <td>
+                    {{ entry.title }}
+                </td>
+                <td>
+                    {% if entry.keywords != null %}
+                        {{ entry.keywords }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if entry.signatur != null %}
+                        {{ entry.signatur }}
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/quotes/{{ entry.id }}">Anzeigen</a>
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+
+    
+    </table>
+{% endblock %}

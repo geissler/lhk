@@ -1,0 +1,24 @@
+{% extends "index.html.twig" %}
+
+{% block container %}
+    <h3>{{ result[0].title}}</h3>
+    <h5>
+        {% if result[0].keywords != null %}            
+            {{ result[0].keywords }}
+        {% endif %}
+
+        {% if result[0].signatur != null %}
+            <span class="badge">{{ result[0].signatur }}</span>
+        {% endif %}
+    </h5>
+    
+    {% for entry in result %}
+        {% if entry.quote is defined and entry.quote != '' %}    
+            <blockquote>
+                <p>{{ entry.quote }}</p>
+                <small>Seite {{ entry.page }}</small>
+            </blockquote>
+       {% endif %}
+    {% endfor %}
+{% endblock %}
+

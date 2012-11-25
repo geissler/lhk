@@ -1,0 +1,14 @@
+{% extends "index.html.twig" %}
+
+{% block css %}
+    <link rel="stylesheet" href="{{ app.request.baseUrl }}/css/tagcloud.css">
+{% endblock %}
+
+{% block container %}
+    {% for tag in tags %}
+        <a href="/search?search={{ tag.tag|url_encode() }}" class="size{{ tag.range  }}">
+            &nbsp;{{ tag.tag }}&nbsp;
+        </a>
+    {% endfor %}
+{% endblock %}
+
