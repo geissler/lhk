@@ -36,10 +36,10 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                    <a class="brand" href="#">LHK Literatur</a>
+                    <a class="brand" href="#">Literatur</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <form class="navbar-search pull-left" action="search" method="GET">
+                            <form class="navbar-search pull-left" action="{{ app.request.baseUrl }}/search" method="GET">
                                 <input id="search" name="search" type="text" class="search-query" placeholder="Suchen..">
                             </form>                           
                         </ul>
